@@ -76,6 +76,101 @@ require('lazy').setup({
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
+  -- Open current git repo in browser
+  'tyru/open-browser.vim',
+  'https://github.com/kevinhwang91/nvim-ufo.git',
+
+  -- Auto pairs
+  'https://github.com/cohama/lexima.vim',
+
+  {
+    'goolord/alpha-nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function ()
+        require'alpha'.setup(require'alpha.themes.startify'.config)
+    end
+  },
+
+  {
+    'yamatsum/nvim-cursorline',
+    config = function()
+      require('nvim-cursorline').setup {
+        cursorline = {
+          enable = true,
+          timeout = 0,
+          number = false,
+        },
+        cursorword = {
+          enable = false,
+          min_length = 3,
+          hl = { underline = true },
+        }
+      }
+    end
+  },
+
+  {
+    "kylechui/nvim-surround",
+    version = "*", -- Use for stability; omit to use `main` branch for the latest features
+    event = "VeryLazy",
+    config = function()
+      require("nvim-surround").setup()
+    end
+  },
+
+  -- Bufferline
+  {
+    'akinsho/bufferline.nvim',
+    version = "*",
+    dependencies = 'nvim-tree/nvim-web-devicons',
+    config = function ()
+      require("bufferline").setup()
+    end
+  },
+
+  {
+    "Pocco81/auto-save.nvim",
+    config = function()
+     require("auto-save").setup()
+    end
+  },
+
+  -- nvim-tree
+  {
+    "nvim-tree/nvim-tree.lua",
+    version = "*",
+    lazy = false,
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+    },
+    config = function()
+      require("nvim-tree").setup {}
+    end,
+  },
+
+  -- Smooth scrolling
+  {
+    'declancm/cinnamon.nvim',
+    config = function() require('cinnamon').setup {
+      -- KEYMAPS:
+      default_keymaps = true,   -- Create default keymaps.
+      extra_keymaps = false,    -- Create extra keymaps.
+      extended_keymaps = false, -- Create extended keymaps.
+      override_keymaps = true, -- The plugin keymaps will override any existing keymaps.
+
+      -- OPTIONS:
+      always_scroll = false,    -- Scroll the cursor even when the window hasn't scrolled.
+      centered = true,          -- Keep cursor centered in window when using window scrolling.
+      disabled = false,         -- Disables the plugin.
+      default_delay = 5,        -- The default delay (in ms) between each line when scrolling.
+      hide_cursor = false,      -- Hide the cursor while scrolling. Requires enabling termguicolors!
+      horizontal_scroll = true, -- Enable smooth horizontal scrolling when view shifts left or right.
+      max_length = -1,          -- Maximum length (in ms) of a command. The line delay will be
+                                -- re-calculated. Setting to -1 will disable this option.
+      scroll_limit = 150,       -- Max number of lines moved before scrolling is skipped. Setting
+    } end
+  },
+
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
   {
@@ -93,6 +188,13 @@ require('lazy').setup({
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
     },
+  },
+
+  {
+    'hrsh7th/cmp-cmdline',
+    dependencies = {
+      'hrsh7th/nvim-cmp',
+    }
   },
 
   {
@@ -151,6 +253,8 @@ require('lazy').setup({
       end,
     },
   },
+
+  -- { "ellisonleao/gruvbox.nvim", priority = 1000 , config = true},
 
   {
     -- Theme inspired by Atom
@@ -236,19 +340,26 @@ require('lazy').setup({
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
 
+-- Basic settings
+vim.o.mouse = 'a'
+vim.o.smartcase = true
+vim.o.number = true
+vim.o.splitright = true
+vim.o.title = true
+vim.o.noerrorbells = true
+vim.o.wrap = false
+
 -- Set highlight on search
-vim.o.hlsearch = false
+vim.o.hlsearch = true
 
 -- Make line numbers default
-vim.wo.number = true
+vim.wo.relativenumber = true
+vim.o.number = true
+
+vim.go.wildmode = "list"
 
 -- Enable mouse mode
 vim.o.mouse = 'a'
-
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
-vim.o.clipboard = 'unnamedplus'
 
 -- Enable break indent
 vim.o.breakindent = true
@@ -264,8 +375,8 @@ vim.o.smartcase = true
 vim.wo.signcolumn = 'yes'
 
 -- Decrease update time
-vim.o.updatetime = 250
-vim.o.timeoutlen = 300
+vim.o.updatetime = 100
+vim.o.timeoutlen = 150
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
@@ -275,13 +386,33 @@ vim.o.termguicolors = true
 
 -- [[ Basic Keymaps ]]
 
+-- Bufferline/buffer mappings
+vim.keymap.set({ 'n', 'v' }, '<C-l>', ':BufferLineCycleNext<CR>')
+vim.keymap.set({ 'n', 'v' }, '<C-h>', ':BufferLineCyclePrev<CR>')
+vim.keymap.set({ 'n', 'v' }, '<C-b>c', ':bd<CR>')
+
+-- Open file with default application
+vim.keymap.set({ 'n', 'v' }, '<F3>', ':silent update<Bar>silent !xdg-open %:p &<CR>')
+
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
+-- Nerdtree mappings
+vim.keymap.set({ 'n', 'v' }, '<leader>t', ':NvimTreeFindFileToggle<CR>')
+
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+
+-- toggle between relativenumber and norelativenumuber
+local toggle_relativenumber = function ()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local return_command = ':' .. bufnr .. 'b'
+  vim.cmd 'bufdo set rnu!'
+  vim.cmd(return_command)
+end
+vim.keymap.set('n', '<leader>rl', function() toggle_relativenumber() end, { desc = 'Toggle relativenumber for all buffers' })
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
@@ -381,7 +512,7 @@ vim.defer_fn(function()
     ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-    auto_install = false,
+    auto_install = true,
 
     highlight = { enable = true },
     indent = { enable = true },
@@ -568,12 +699,13 @@ cmp.setup {
     ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-p>'] = cmp.mapping.select_prev_item(),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-u>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete {},
-    ['<CR>'] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
-    },
+    ['<CR>'] = cmp.mapping.confirm({ select = false }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+    -- ['<CR>'] = cmp.mapping.confirm {
+    --   behavior = cmp.ConfirmBehavior.Replace,
+    --   select = true,
+    -- },
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
@@ -597,7 +729,28 @@ cmp.setup {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
   },
-}
+};
+
+cmp.setup.cmdline('/', {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = {
+    { name = 'buffer' }
+  }
+})
+
+cmp.setup.cmdline(':', {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = cmp.config.sources({
+    { name = 'path' }
+  }, {
+    {
+      name = 'cmdline',
+      option = {
+        ignore_cmds = { 'Man', '!' }
+      }
+    }
+  })
+})
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

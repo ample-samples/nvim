@@ -77,11 +77,31 @@ require('lazy').setup({
   'tpope/vim-sleuth',
 
   -- Open current git repo in browser
-  'tyru/open-browser.vim',
+  {
+    'https://github.com/tyru/open-browser-github.vim',
+    dependencies = { 'tyru/open-browser.vim' }
+  },
+
   'https://github.com/kevinhwang91/nvim-ufo.git',
 
   -- Auto pairs
   'https://github.com/cohama/lexima.vim',
+
+  -- html 
+  'mattn/emmet-vim',
+
+
+  -- Use w, e and b to move through camelCase
+  "bkad/CamelCaseMotion",
+
+  -- undotree
+  "mbbill/undotree",
+
+  -- Rainbow brackets
+  {
+    'HiPhish/nvim-ts-rainbow2',
+    dependencies = { 'nvim-treesitter' }
+  },
 
   {
     'goolord/alpha-nvim',
@@ -254,8 +274,6 @@ require('lazy').setup({
     },
   },
 
-  -- { "ellisonleao/gruvbox.nvim", priority = 1000 , config = true},
-
   {
     -- Theme inspired by Atom
     'navarasu/onedark.nvim',
@@ -334,11 +352,44 @@ require('lazy').setup({
   --
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   -- { import = 'custom.plugins' },
-}, {})
+  }, {
+    import = ''
+  }
+)
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
+vim.cmd([[
+  " Set js files to use jsx instead
+  augroup filetype_jsx
+    autocmd!
+    autocmd FileType javascript set filetype=javascriptreact
+  augroup END
+
+  " Auto-change directory to that of the currently opened file
+  autocmd BufEnter * silent! lcd %:p:h
+]])
+
+-- Put anything you want to happen only in Neovide here
+if vim.g.neovide then
+  vim.g.neovide_refresh_rate = 165
+  vim.g.neovide_scroll_animation_length = 2
+  require('cinnamon').setup {
+    default_delay = 0
+  }
+  -- -- Copying to system clipboard
+  -- -- From current cursor position to EOL (normal mode)
+  -- vim.keymap.set({'n'}, '<C-c>', '"+y$')
+  -- -- Current selection (visual mode)
+  -- vim.keymap.set({'v'}, '<C-c>', '"+y')
+  --
+  -- -- Cutting to system clipboard
+  -- -- From current cursor position to EOL (normal mode)
+  -- vim.keymap.set({'n'}, '<C-x>', '"+d$')
+  -- -- Current selection (visual mode)
+  -- vim.keymap.set({'v'}, '<C-x>', '"+d')
+end
 
 -- Basic settings
 vim.o.mouse = 'a'
@@ -348,9 +399,9 @@ vim.o.splitright = true
 vim.o.title = true
 vim.o.noerrorbells = true
 vim.o.wrap = false
-
--- Set highlight on search
-vim.o.hlsearch = true
+vim.o.scrolloff = 5
+vim.o.sidescrolloff = 10
+vim.o.cursorline = true
 
 -- Make line numbers default
 vim.wo.relativenumber = true
@@ -367,6 +418,9 @@ vim.o.breakindent = true
 -- Save undo history
 vim.o.undofile = true
 
+-- Search and case
+vim.o.hlsearch = false
+
 -- Case-insensitive searching UNLESS \C or capital in search
 vim.o.ignorecase = true
 vim.o.smartcase = true
@@ -375,8 +429,8 @@ vim.o.smartcase = true
 vim.wo.signcolumn = 'yes'
 
 -- Decrease update time
-vim.o.updatetime = 100
-vim.o.timeoutlen = 150
+vim.o.updatetime = 200
+vim.o.timeoutlen = 350
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
@@ -385,6 +439,38 @@ vim.o.completeopt = 'menuone,noselect'
 vim.o.termguicolors = true
 
 -- [[ Basic Keymaps ]]
+vim.keymap.set('n', '<leader>h', ':Alpha<CR>')
+
+-- camelCaseMotion
+vim.cmd([[
+  map <silent> w <Plug>CamelCaseMotion_w
+  map <silent> b <Plug>CamelCaseMotion_b
+  map <silent> e <Plug>CamelCaseMotion_e
+  map <silent> ge <Plug>CamelCaseMotion_ge
+  sunmap w
+  sunmap b
+  sunmap e
+  sunmap ge
+  " omap <silent> iw <Plug>CamelCaseMotion_iw
+  " xmap <silent> iw <Plug>CamelCaseMotion_iw
+  " omap <silent> ib <Plug>CamelCaseMotion_ib
+  " xmap <silent> ib <Plug>CamelCaseMotion_ib
+  " omap <silent> ie <Plug>CamelCaseMotion_ie
+  " xmap <silent> ie <Plug>CamelCaseMotion_ie
+]])
+
+-- undotree
+vim.keymap.set({'v', 'n'}, '<leader>u', ':UndotreeToggle<CR>')
+
+-- Exit terminal mode
+vim.keymap.set({'t', 'n'}, '<Esc>', '<C-\\><C-n>')
+
+-- Telescope + LSP
+vim.keymap.set('n', '<leader>ld', ':Telescope lsp_definitions<CR>')
+vim.keymap.set('n', '<leader>lr', ':Telescope lsp_references<CR>')
+vim.keymap.set('n', '<leader>ls', ':Telescope lsp_document_symbols<CR>')
+vim.keymap.set('n', '<leader>li', ':Telescope lsp_implementations<CR>')
+vim.keymap.set('n', '<C-k>', ':lua vim.lsp.buf.hover()<CR>')
 
 -- Bufferline/buffer mappings
 vim.keymap.set({ 'n', 'v' }, '<C-l>', ':BufferLineCycleNext<CR>')
@@ -508,6 +594,13 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 -- Defer Treesitter setup after first render to improve startup time of 'nvim {filename}'
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
+    rainbow = {
+      enable = false,
+      -- disable = { 'jsx', 'cpp' }, -- list of languages you want to disable the plugin for
+      query = 'rainbow-parens', -- Which query to use for finding delimiters
+      strategy = require('ts-rainbow').strategy.global, -- Highlight the entire buffer all at once
+    },
+
     -- Add languages to be installed here that you want installed for treesitter
     ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
 

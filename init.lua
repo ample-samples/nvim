@@ -79,6 +79,7 @@ require('lazy').setup({
   -- Open current git repo in browser
   {
     'https://github.com/tyru/open-browser-github.vim',
+    event = 'VeryLazy',
     dependencies = { 'tyru/open-browser.vim' }
   },
 
@@ -90,18 +91,59 @@ require('lazy').setup({
   -- html 
   'mattn/emmet-vim',
 
-
   -- Use w, e and b to move through camelCase
   "bkad/CamelCaseMotion",
 
   -- undotree
   "mbbill/undotree",
 
+  {
+    'mg979/vim-visual-multi'
+  },
+
   -- Rainbow brackets
   {
     'HiPhish/nvim-ts-rainbow2',
     dependencies = { 'nvim-treesitter' }
   },
+
+  {
+    "folke/todo-comments.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+    }
+  },
+  -- AI Coding assistants
+  {
+    'Exafunction/codeium.vim',
+    config = function ()
+      -- Change '<C-g>' here to any keycode you like.
+      vim.g.codeium_disable_bindings = 1
+      vim.keymap.set('i', '<C-Enter>', function () return vim.fn['codeium#Accept']() end, { expr = true })
+      vim.keymap.set('i', '<C-.>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
+      vim.keymap.set('i', '<C-,>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
+      vim.keymap.set('i', '<C-backspace>', function() return vim.fn['codeium#Clear']() end, { expr = true })
+    end
+  },
+
+  -- {
+  --   "folke/noice.nvim",
+  --   event = "VeryLazy",
+  --   opts = {
+  --     -- add any options here
+  --   },
+  --   dependencies = {
+  --     -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+  --     "MunifTanjim/nui.nvim",
+  --     -- OPTIONAL:
+  --     --   `nvim-notify` is only needed, if you want to use the notification view.
+  --     --   If not available, we use `mini` as the fallback
+  --     "rcarriga/nvim-notify",
+  --     }
+  -- },
 
   {
     'goolord/alpha-nvim',
@@ -164,7 +206,11 @@ require('lazy').setup({
       "nvim-tree/nvim-web-devicons",
     },
     config = function()
-      require("nvim-tree").setup {}
+      require("nvim-tree").setup {
+        update_focused_file = {
+          enable = true,
+        }
+      }
     end,
   },
 
@@ -174,7 +220,7 @@ require('lazy').setup({
     config = function() require('cinnamon').setup {
       -- KEYMAPS:
       default_keymaps = true,   -- Create default keymaps.
-      extra_keymaps = false,    -- Create extra keymaps.
+      extra_keymaps = true,    -- Create extra keymaps.
       extended_keymaps = false, -- Create extended keymaps.
       override_keymaps = true, -- The plugin keymaps will override any existing keymaps.
 
@@ -212,6 +258,7 @@ require('lazy').setup({
 
   {
     'hrsh7th/cmp-cmdline',
+    event = 'VeryLazy',
     dependencies = {
       'hrsh7th/nvim-cmp',
     }
@@ -230,11 +277,13 @@ require('lazy').setup({
 
       -- Adds a number of user-friendly snippets
       'rafamadriz/friendly-snippets',
+
     },
   },
 
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim', opts = {} },
+    event = 'VeryLazy',
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -294,7 +343,10 @@ require('lazy').setup({
         component_separators = '|',
         section_separators = '',
       },
-    },
+      sections = {
+        lualine_x = {'%3{codeium#GetStatusString()}', 'filetype'},
+      }
+    }
   },
 
   {
@@ -308,6 +360,11 @@ require('lazy').setup({
 
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
+
+  -- Telescope plugin to get git repos
+  {
+    'cljoly/telescope-repo.nvim'
+  },
 
   -- Fuzzy Finder (files, lsp, etc)
   {
@@ -378,17 +435,18 @@ if vim.g.neovide then
   require('cinnamon').setup {
     default_delay = 0
   }
-  -- -- Copying to system clipboard
-  -- -- From current cursor position to EOL (normal mode)
-  -- vim.keymap.set({'n'}, '<C-c>', '"+y$')
-  -- -- Current selection (visual mode)
-  -- vim.keymap.set({'v'}, '<C-c>', '"+y')
-  --
-  -- -- Cutting to system clipboard
-  -- -- From current cursor position to EOL (normal mode)
-  -- vim.keymap.set({'n'}, '<C-x>', '"+d$')
-  -- -- Current selection (visual mode)
-  -- vim.keymap.set({'v'}, '<C-x>', '"+d')
+  vim.g.neovide_cursor_vfx_mode = "pixiedust"
+  vim.g.neovide_cursor_vfx_particle_density = 17.0
+  vim.o.guifont = "MonoLisa:style=Regular:scale=1" -- text below applies for VimScript
+
+  -- Clipboard
+  vim.cmd([[set clipboard=unnamed]])
+  -- Neovide cliboard
+  vim.keymap.set('v', '<M-c>', '"*y') -- Copy
+  vim.keymap.set('n', '<M-v>', '"*P') -- Paste normal mode
+  vim.keymap.set('v', '<M-v>', '"*P') -- Paste visual mode
+  vim.keymap.set('c', '<M-v>', '<C-R>*') -- Paste command mode
+  vim.keymap.set('i', '<M-v>', '<ESC>l"*Pli') -- Paste insert mode
 end
 
 -- Basic settings
@@ -402,6 +460,12 @@ vim.o.wrap = false
 vim.o.scrolloff = 5
 vim.o.sidescrolloff = 10
 vim.o.cursorline = true
+
+vim.o.shiftwidth=2
+vim.o.softtabstop=2
+vim.o.tabstop=2
+vim.o.autoindent=true
+
 
 -- Make line numbers default
 vim.wo.relativenumber = true
@@ -459,6 +523,10 @@ vim.cmd([[
   " xmap <silent> ie <Plug>CamelCaseMotion_ie
 ]])
 
+-- File shortcuts
+vim.keymap.set('n', '<leader>oe', ':e /home/todd/Documents/Projects/exercism-exercises/<CR>')
+vim.keymap.set('n', '<leader>op', ':e /home/todd/Documents/Projects/<CR>')
+
 -- undotree
 vim.keymap.set({'v', 'n'}, '<leader>u', ':UndotreeToggle<CR>')
 
@@ -466,16 +534,24 @@ vim.keymap.set({'v', 'n'}, '<leader>u', ':UndotreeToggle<CR>')
 vim.keymap.set({'t', 'n'}, '<Esc>', '<C-\\><C-n>')
 
 -- Telescope + LSP
-vim.keymap.set('n', '<leader>ld', ':Telescope lsp_definitions<CR>')
-vim.keymap.set('n', '<leader>lr', ':Telescope lsp_references<CR>')
-vim.keymap.set('n', '<leader>ls', ':Telescope lsp_document_symbols<CR>')
-vim.keymap.set('n', '<leader>li', ':Telescope lsp_implementations<CR>')
+vim.keymap.set('n', '<leader>ld', ':Telescope lsp_definitions<CR>', { desc = 'Go to definition' })
+vim.keymap.set('n', '<leader>lr', ':Telescope lsp_references<CR>', { desc = 'Go to reference' })
+vim.keymap.set('n', '<leader>ls', ':Telescope lsp_document_symbols<CR>', { desc = 'View document symbols' })
+vim.keymap.set('n', '<leader>li', ':Telescope lsp_implementations<CR>', { desc = 'Go to implementation' })
 vim.keymap.set('n', '<C-k>', ':lua vim.lsp.buf.hover()<CR>')
+
+-- Telescope open git repos
+vim.keymap.set('n', '<leader>fr', ':Telescope repo cached_list<CR>', { desc = 'Open list of git repos' })
+vim.keymap.set('n', '<leader>fR', ':Telescope repo list<CR>', { desc = 'Open list of git repos with recursive search' })
+
+-- Telescope find files
+vim.keymap.set('n', '<leader>ff', ':Telescope find_files<CR>', { desc = 'Find files' })
+vim.keymap.set('n', '<leader>fg', ':Telescope git_files<CR>', { desc = 'Find git files' })
 
 -- Bufferline/buffer mappings
 vim.keymap.set({ 'n', 'v' }, '<C-l>', ':BufferLineCycleNext<CR>')
 vim.keymap.set({ 'n', 'v' }, '<C-h>', ':BufferLineCyclePrev<CR>')
-vim.keymap.set({ 'n', 'v' }, '<C-b>c', ':bd<CR>')
+vim.keymap.set({ 'n', 'v' }, '<C-x>', ':bd<CR>')
 
 -- Open file with default application
 vim.keymap.set({ 'n', 'v' }, '<F3>', ':silent update<Bar>silent !xdg-open %:p &<CR>')
@@ -488,8 +564,27 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set({ 'n', 'v' }, '<leader>t', ':NvimTreeFindFileToggle<CR>')
 
 -- Remap for dealing with word wrap
-vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+-- vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+-- vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+
+-- require("noice").setup({
+--   lsp = {
+--     -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+--     override = {
+--       ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+--       ["vim.lsp.util.stylize_markdown"] = true,
+--       ["cmp.entry.get_documentation"] = true,
+--     },
+--   },
+--   -- you can enable a preset for easier configuration
+--   presets = {
+--     bottom_search = true, -- use a classic bottom cmdline for search
+--     command_palette = true, -- position the cmdline and popupmenu together
+--     long_message_to_split = true, -- long messages will be sent to a split
+--     inc_rename = false, -- enables an input dialog for inc-rename.nvim
+--     lsp_doc_border = true, -- add a border to hover docs and signature help
+--   },
+-- })
 
 -- toggle between relativenumber and norelativenumuber
 local toggle_relativenumber = function ()
@@ -529,6 +624,15 @@ require('telescope').setup {
     },
   },
 }
+
+-- Enter normal mode after using telescope prompt
+vim.api.nvim_create_autocmd("WinLeave", {
+  callback = function()
+    if vim.bo.ft == "TelescopePrompt" and vim.fn.mode() == "i" then
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "i", false)
+    end
+  end,
+})
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
@@ -739,8 +843,9 @@ local servers = {
   -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},
-  -- tsserver = {},
-  -- html = { filetypes = { 'html', 'twig', 'hbs'} },
+  tailwindcss = {},
+  tsserver = {},
+  html = { filetypes = { 'html', 'twig', 'hbs' } },
 
   lua_ls = {
     Lua = {
@@ -781,6 +886,15 @@ local cmp = require 'cmp'
 local luasnip = require 'luasnip'
 require('luasnip.loaders.from_vscode').lazy_load()
 luasnip.config.setup {}
+
+-- console.log({$1})
+luasnip.add_snippets("typescript", {
+  luasnip.snippet("cl", {
+    luasnip.text_node("console.log("),
+    luasnip.insert_node(1),
+    luasnip.text_node(")"),
+  })
+})
 
 cmp.setup {
   snippet = {

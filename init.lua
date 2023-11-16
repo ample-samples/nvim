@@ -7,19 +7,19 @@
 Kickstart.nvim is *not* a distribution.
 
 Kickstart.nvim is a template for your own configuration.
-  The goal is that you can read every line of code, top-to-bottom, understand
-  what your configuration is doing, and modify it to suit your needs.
+The goal is that you can read every line of code, top-to-bottom, understand
+what your configuration is doing, and modify it to suit your needs.
 
-  Once you've done that, you should start exploring, configuring and tinkering to
-  explore Neovim!
+Once you've done that, you should start exploring, configuring and tinkering to
+explore Neovim!
 
-  If you don't know anything about Lua, I recommend taking some time to read through
-  a guide. One possible example:
-  - https://learnxinyminutes.com/docs/lua/
+If you don't know anything about Lua, I recommend taking some time to read through
+a guide. One possible example:
+- https://learnxinyminutes.com/docs/lua/
 
 
-  And then you can explore or search through `:help lua-guide`
-  - https://neovim.io/doc/user/lua-guide.html
+And then you can explore or search through `:help lua-guide`
+- https://neovim.io/doc/user/lua-guide.html
 
 
 Kickstart Guide:
@@ -88,7 +88,7 @@ require('lazy').setup({
   -- Auto pairs
   'https://github.com/cohama/lexima.vim',
 
-  -- html 
+  -- html
   'mattn/emmet-vim',
 
   -- Use w, e and b to move through camelCase
@@ -99,6 +99,15 @@ require('lazy').setup({
 
   {
     'mg979/vim-visual-multi'
+  },
+
+  --leap.nvim
+  {
+    'ggandor/leap.nvim',
+    lazy = true,
+    config = function()
+      require('leap').add_default_mappings()
+    end
   },
 
   -- Rainbow brackets
@@ -116,13 +125,25 @@ require('lazy').setup({
       -- refer to the configuration section below
     }
   },
+
+  -- trouble.nvim
+  {
+    "folke/trouble.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+    },
+  },
+
   -- AI Coding assistants
   {
     'Exafunction/codeium.vim',
-    config = function ()
+    config = function()
       -- Change '<C-g>' here to any keycode you like.
       vim.g.codeium_disable_bindings = 1
-      vim.keymap.set('i', '<C-Enter>', function () return vim.fn['codeium#Accept']() end, { expr = true })
+      vim.keymap.set('i', '<C-Enter>', function() return vim.fn['codeium#Accept']() end, { expr = true })
       vim.keymap.set('i', '<C-.>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
       vim.keymap.set('i', '<C-,>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
       vim.keymap.set('i', '<C-backspace>', function() return vim.fn['codeium#Clear']() end, { expr = true })
@@ -148,8 +169,8 @@ require('lazy').setup({
   {
     'goolord/alpha-nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
-    config = function ()
-        require'alpha'.setup(require'alpha.themes.startify'.config)
+    config = function()
+      require 'alpha'.setup(require 'alpha.themes.startify'.config)
     end
   },
 
@@ -185,7 +206,7 @@ require('lazy').setup({
     'akinsho/bufferline.nvim',
     version = "*",
     dependencies = 'nvim-tree/nvim-web-devicons',
-    config = function ()
+    config = function()
       require("bufferline").setup()
     end
   },
@@ -193,7 +214,7 @@ require('lazy').setup({
   {
     "Pocco81/auto-save.nvim",
     config = function()
-     require("auto-save").setup()
+      require("auto-save").setup()
     end
   },
 
@@ -210,6 +231,14 @@ require('lazy').setup({
         update_focused_file = {
           enable = true,
           -- update_cwd = true
+        },
+        view = {
+          side = "right"
+        },
+        renderer = {
+          indent_markers = {
+            enable = true
+          }
         }
       }
     end,
@@ -218,24 +247,26 @@ require('lazy').setup({
   -- Smooth scrolling
   {
     'declancm/cinnamon.nvim',
-    config = function() require('cinnamon').setup {
-      -- KEYMAPS:
-      default_keymaps = true,   -- Create default keymaps.
-      extra_keymaps = true,    -- Create extra keymaps.
-      extended_keymaps = false, -- Create extended keymaps.
-      override_keymaps = true, -- The plugin keymaps will override any existing keymaps.
+    config = function()
+      require('cinnamon').setup {
+        -- KEYMAPS:
+        default_keymaps = true,   -- Create default keymaps.
+        extra_keymaps = true,     -- Create extra keymaps.
+        extended_keymaps = false, -- Create extended keymaps.
+        override_keymaps = true,  -- The plugin keymaps will override any existing keymaps.
 
-      -- OPTIONS:
-      always_scroll = false,    -- Scroll the cursor even when the window hasn't scrolled.
-      centered = true,          -- Keep cursor centered in window when using window scrolling.
-      disabled = false,         -- Disables the plugin.
-      default_delay = 5,        -- The default delay (in ms) between each line when scrolling.
-      hide_cursor = false,      -- Hide the cursor while scrolling. Requires enabling termguicolors!
-      horizontal_scroll = true, -- Enable smooth horizontal scrolling when view shifts left or right.
-      max_length = -1,          -- Maximum length (in ms) of a command. The line delay will be
-                                -- re-calculated. Setting to -1 will disable this option.
-      scroll_limit = 150,       -- Max number of lines moved before scrolling is skipped. Setting
-    } end
+        -- OPTIONS:
+        always_scroll = false,    -- Scroll the cursor even when the window hasn't scrolled.
+        centered = true,          -- Keep cursor centered in window when using window scrolling.
+        disabled = false,         -- Disables the plugin.
+        default_delay = 5,        -- The default delay (in ms) between each line when scrolling.
+        hide_cursor = false,      -- Hide the cursor while scrolling. Requires enabling termguicolors!
+        horizontal_scroll = true, -- Enable smooth horizontal scrolling when view shifts left or right.
+        max_length = -1,          -- Maximum length (in ms) of a command. The line delay will be
+        -- re-calculated. Setting to -1 will disable this option.
+        scroll_limit = 150,       -- Max number of lines moved before scrolling is skipped. Setting
+      }
+    end
   },
 
   -- NOTE: This is where your plugins related to LSP can be installed.
@@ -283,8 +314,8 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
-    event = 'VeryLazy',
+  { 'folke/which-key.nvim',  opts = {} },
+  event = 'VeryLazy',
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -345,7 +376,7 @@ require('lazy').setup({
         section_separators = '',
       },
       sections = {
-        lualine_x = {'%3{codeium#GetStatusString()}', 'filetype'},
+        lualine_x = { '%3{codeium#GetStatusString()}', 'filetype' },
       }
     }
   },
@@ -410,23 +441,23 @@ require('lazy').setup({
   --
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   -- { import = 'custom.plugins' },
-  }, {
-    import = ''
-  }
+}, {
+  import = ''
+}
 )
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
 vim.cmd([[
-  " Set js files to use jsx instead
-  augroup filetype_jsx
-    autocmd!
-    autocmd FileType javascript set filetype=javascriptreact
-  augroup END
+" Set js files to use jsx instead
+augroup filetype_jsx
+autocmd!
+autocmd FileType javascript set filetype=javascriptreact
+augroup END
 
-  " Auto-change directory to that of the currently opened file
-  autocmd BufEnter * silent! lcd %:p:h
+" Auto-change directory to that of the currently opened file
+autocmd BufEnter * silent! lcd %:p:h
 ]])
 
 -- Put anything you want to happen only in Neovide here
@@ -443,10 +474,10 @@ if vim.g.neovide then
   -- Clipboard
   vim.cmd([[set clipboard=unnamed]])
   -- Neovide cliboard
-  vim.keymap.set('v', '<M-c>', '"*y') -- Copy
-  vim.keymap.set('n', '<M-v>', '"*P') -- Paste normal mode
-  vim.keymap.set('v', '<M-v>', '"*P') -- Paste visual mode
-  vim.keymap.set('c', '<M-v>', '<C-R>*') -- Paste command mode
+  vim.keymap.set('v', '<M-c>', '"*y')         -- Copy
+  vim.keymap.set('n', '<M-v>', '"*P')         -- Paste normal mode
+  vim.keymap.set('v', '<M-v>', '"*P')         -- Paste visual mode
+  vim.keymap.set('c', '<M-v>', '<C-R>*')      -- Paste command mode
   vim.keymap.set('i', '<M-v>', '<ESC>l"*Pli') -- Paste insert mode
 end
 
@@ -462,10 +493,10 @@ vim.o.scrolloff = 5
 vim.o.sidescrolloff = 10
 vim.o.cursorline = true
 
-vim.o.shiftwidth=2
-vim.o.softtabstop=2
-vim.o.tabstop=2
-vim.o.autoindent=true
+vim.o.shiftwidth = 2
+vim.o.softtabstop = 2
+vim.o.tabstop = 2
+vim.o.autoindent = true
 
 
 -- Make line numbers default
@@ -508,31 +539,43 @@ vim.keymap.set('n', '<leader>h', ':Alpha<CR>')
 
 -- camelCaseMotion
 vim.cmd([[
-  map <silent> w <Plug>CamelCaseMotion_w
-  map <silent> b <Plug>CamelCaseMotion_b
-  map <silent> e <Plug>CamelCaseMotion_e
-  map <silent> ge <Plug>CamelCaseMotion_ge
-  sunmap w
-  sunmap b
-  sunmap e
-  sunmap ge
-  " omap <silent> iw <Plug>CamelCaseMotion_iw
-  " xmap <silent> iw <Plug>CamelCaseMotion_iw
-  " omap <silent> ib <Plug>CamelCaseMotion_ib
-  " xmap <silent> ib <Plug>CamelCaseMotion_ib
-  " omap <silent> ie <Plug>CamelCaseMotion_ie
-  " xmap <silent> ie <Plug>CamelCaseMotion_ie
+map <silent> w <Plug>CamelCaseMotion_w
+map <silent> b <Plug>CamelCaseMotion_b
+map <silent> e <Plug>CamelCaseMotion_e
+map <silent> ge <Plug>CamelCaseMotion_ge
+sunmap w
+sunmap b
+sunmap e
+sunmap ge
+" omap <silent> iw <Plug>CamelCaseMotion_iw
+" xmap <silent> iw <Plug>CamelCaseMotion_iw
+" omap <silent> ib <Plug>CamelCaseMotion_ib
+" xmap <silent> ib <Plug>CamelCaseMotion_ib
+" omap <silent> ie <Plug>CamelCaseMotion_ie
+" xmap <silent> ie <Plug>CamelCaseMotion_ie
 ]])
+
+-- leap.nvim
+local function leap_all_windows()
+  require('leap').leap { target_windows = vim.tbl_filter(
+    function(win) return vim.api.nvim_win_get_config(win).focusable end,
+    vim.api.nvim_tabpage_list_wins(0)
+  ) }
+end
+
+vim.keymap.set('n', 's', ':lua require(\'leap\').leap { target_windows = { vim.fn.win_getid() } }<CR>', { desc = 'Bi-directional leap within window' })
+vim.keymap.set('n', 'S', leap_all_windows, { desc = 'Leap across all open windows' })
+
 
 -- File shortcuts
 vim.keymap.set('n', '<leader>oe', ':e /home/todd/Documents/Projects/exercism-exercises/<CR>')
 vim.keymap.set('n', '<leader>op', ':e /home/todd/Documents/Projects/<CR>')
 
 -- undotree
-vim.keymap.set({'v', 'n'}, '<leader>u', ':UndotreeToggle<CR>')
+vim.keymap.set({ 'v', 'n' }, '<leader>u', ':UndotreeToggle<CR>')
 
 -- Exit terminal mode
-vim.keymap.set({'t', 'n'}, '<Esc>', '<C-\\><C-n>')
+vim.keymap.set({ 't', 'n' }, '<Esc>', '<C-\\><C-n>')
 
 -- Telescope + LSP
 vim.keymap.set('n', '<leader>ld', ':Telescope lsp_definitions<CR>', { desc = 'Go to definition' })
@@ -550,8 +593,8 @@ vim.keymap.set('n', '<leader>ff', ':Telescope find_files<CR>', { desc = 'Find fi
 vim.keymap.set('n', '<leader>fg', ':Telescope git_files<CR>', { desc = 'Find git files' })
 
 -- Bufferline/buffer mappings
-vim.keymap.set({ 'n', 'v' }, '<C-l>', ':BufferLineCycleNext<CR>')
-vim.keymap.set({ 'n', 'v' }, '<C-h>', ':BufferLineCyclePrev<CR>')
+vim.keymap.set({ 'n', 'v' }, '<C-l>', ':bnext<CR>')
+vim.keymap.set({ 'n', 'v' }, '<C-h>', ':bprev<CR>')
 vim.keymap.set({ 'n', 'v' }, '<C-x>', ':bd<CR>')
 
 -- Open file with default application
@@ -561,8 +604,9 @@ vim.keymap.set({ 'n', 'v' }, '<F3>', ':silent update<Bar>silent !xdg-open %:p &<
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
--- Nerdtree mappings
-vim.keymap.set({ 'n', 'v' }, '<leader>t', ':NvimTreeFindFileToggle<CR>')
+-- nvim-tree mappings
+vim.keymap.set({ 'n', 'v' }, '<leader>t', ':NvimTreeFocus<CR>')
+vim.keymap.set({ 'n', 'v' }, '<leader>T', ':NvimTreeFindFileToggle<CR>')
 
 -- Remap for dealing with word wrap
 -- vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -588,13 +632,14 @@ vim.keymap.set({ 'n', 'v' }, '<leader>t', ':NvimTreeFindFileToggle<CR>')
 -- })
 
 -- toggle between relativenumber and norelativenumuber
-local toggle_relativenumber = function ()
+local toggle_relativenumber = function()
   local bufnr = vim.api.nvim_get_current_buf()
   local return_command = ':' .. bufnr .. 'b'
   vim.cmd 'bufdo set rnu!'
   vim.cmd(return_command)
 end
-vim.keymap.set('n', '<leader>rl', function() toggle_relativenumber() end, { desc = 'Toggle relativenumber for all buffers' })
+vim.keymap.set('n', '<leader>rl', function() toggle_relativenumber() end,
+  { desc = 'Toggle relativenumber for all buffers' })
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
@@ -667,7 +712,7 @@ local function live_grep_git_root()
   local git_root = find_git_root()
   if git_root then
     require('telescope.builtin').live_grep({
-      search_dirs = {git_root},
+      search_dirs = { git_root },
     })
   end
 end
@@ -702,7 +747,7 @@ vim.defer_fn(function()
     rainbow = {
       enable = false,
       -- disable = { 'jsx', 'cpp' }, -- list of languages you want to disable the plugin for
-      query = 'rainbow-parens', -- Which query to use for finding delimiters
+      query = 'rainbow-parens',                         -- Which query to use for finding delimiters
       strategy = require('ts-rainbow').strategy.global, -- Highlight the entire buffer all at once
     },
 
@@ -787,6 +832,8 @@ local on_attach = function(_, bufnr)
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
 
+  vim.keymap.set({ 'n', 'v' }, '<leader>F', function() vim.lsp.buf.format() end,
+    { buffer = bufnr, desc = 'Format current buffer with LSP' })
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
@@ -844,8 +891,9 @@ local servers = {
   -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},
-  tailwindcss = {},
-  tsserver = {},
+  tailwindcss = { filetypes = { 'html', 'css', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' } },
+  tsserver = { filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx', 'javascript', 'javascriptreact' } },
+  eslint = { filetypes = { '' } },
   html = { filetypes = { 'html', 'twig', 'hbs' } },
 
   lua_ls = {
@@ -959,6 +1007,26 @@ cmp.setup.cmdline(':', {
     }
   })
 })
+
+-- Emmet leader key
+-- vim.g.user_emmet_leader_key = '<C-y>'
+vim.cmd([[
+imap   <C-y>,   <plug>(emmet-expand-abbr)
+imap   <C-y>;   <plug>(emmet-expand-word)
+imap   <C-y>u   <plug>(emmet-update-tag)
+imap   <C-y>d   <plug>(emmet-balance-tag-inward)
+imap   <C-y>D   <plug>(emmet-balance-tag-outward)
+imap   <C-y>n   <plug>(emmet-move-next)
+imap   <C-y>N   <plug>(emmet-move-prev)
+imap   <C-y>i   <plug>(emmet-image-size)
+imap   <C-y>/   <plug>(emmet-toggle-comment)
+imap   <C-y>j   <plug>(emmet-split-join-tag)
+imap   <C-y>k   <plug>(emmet-remove-tag)
+imap   <C-y>a   <plug>(emmet-anchorize-url)
+imap   <C-y>A   <plug>(emmet-anchorize-summary)
+imap   <C-y>m   <plug>(emmet-merge-lines)
+imap   <C-y>c   <plug>(emmet-code-pretty)
+]])
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

@@ -500,6 +500,16 @@ if vim.g.neovide then
   vim.keymap.set('i', '<M-v>', '<ESC>l"*Pli') -- Paste insert mode
 end
 
+-- Auto compile sass
+vim.api.nvim_create_autocmd('BufWritePost', {
+  pattern = '*.sass,*.scss',
+  callback = function()
+    local filepath = string.gsub(vim.fn.expand('%:p'), " ", "\\ ")
+    local command = string.format('!sass %s', filepath) .. " " .. vim.fn.expand('%:r.css') .. ".css"
+    vim.cmd(command)
+  end
+})
+
 -- Basic settings
 vim.o.mouse = 'a'
 vim.o.smartcase = true

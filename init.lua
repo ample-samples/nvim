@@ -28,6 +28,7 @@ I have left several `:help X` comments throughout the init.lua
 You should run that command and read that help section for more information.
 
 In addition, I have some `NOTE:` items throughout the file.
+
 These are for you, the reader to help understand what is happening. Feel free to delete
 them once you know what you're doing, but they should serve as a guide for when you
 are first encountering a few different constructs in your nvim config.
@@ -99,6 +100,21 @@ require('lazy').setup({
 
   {
     'mg979/vim-visual-multi'
+  },
+
+  -- Colorizer
+  -- {
+  --   'norcalli/nvim-colorizer.lua'
+  -- },
+  {
+    'NvChad/nvim-colorizer.lua',
+    config = function()
+      require 'colorizer'.setup {
+        user_default_options = {
+          sass = { enable = true }
+        }
+      }
+    end
   },
 
   --leap.nvim
@@ -502,7 +518,7 @@ end
 
 -- Auto compile sass
 vim.api.nvim_create_autocmd('BufWritePost', {
-  pattern = '*.sass,*.scss',
+  pattern = '[^_]*.sass,[^_]*.scss',
   callback = function()
     local filepath = string.gsub(vim.fn.expand('%:p'), " ", "\\ ")
     local command = string.format('!sass %s', filepath) .. " " .. vim.fn.expand('%:r.css') .. ".css"

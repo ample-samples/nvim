@@ -526,6 +526,23 @@ vim.api.nvim_create_autocmd('BufWritePost', {
   end
 })
 
+vim.api.nvim_create_autocmd('BufWritePost', {
+  pattern = '[_]*.sass,[_]*.scss',
+  callback = function()
+-- find files which end with .sass or .scss and do not start with _
+
+    local matched_files = vim.fn.system("find *.scss")
+    local files_table = vim.split(matched_files, '\n')
+    for _, value in pairs(files_table) do
+      if string.sub(value, 1, 1) ~= '_' and value ~= "" then
+        print("accept", value)
+        local css_name = string.gsub(value, ".scss", "") .. ".css"
+        vim.fn.system("sass " .. value .. " " .. css_name)
+      end
+    end
+  end
+})
+
 -- Basic settings
 vim.o.mouse = 'a'
 vim.o.smartcase = true

@@ -535,7 +535,6 @@ vim.api.nvim_create_autocmd('BufWritePost', {
     local files_table = vim.split(matched_files, '\n')
     for _, value in pairs(files_table) do
       if string.sub(value, 1, 1) ~= '_' and value ~= "" then
-        print("accept", value)
         local css_name = string.gsub(value, ".scss", "") .. ".css"
         vim.fn.system("sass " .. value .. " " .. css_name)
       end

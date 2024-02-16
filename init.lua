@@ -77,13 +77,6 @@ require('lazy').setup({
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
-  -- Open current git repo in browser
-  {
-    'https://github.com/tyru/open-browser-github.vim',
-    event = 'VeryLazy',
-    dependencies = { 'tyru/open-browser.vim' }
-  },
-
   'https://github.com/kevinhwang91/nvim-ufo.git',
 
   -- Auto pairs
@@ -100,6 +93,15 @@ require('lazy').setup({
 
   {
     'mg979/vim-visual-multi'
+  },
+
+  {
+    'milisims/nvim-luaref'
+  },
+
+  {
+    'folke/neodev.nvim',
+    opts = {}
   },
 
   -- Colorizer
@@ -141,6 +143,47 @@ require('lazy').setup({
       -- refer to the configuration section below
     }
   },
+
+  -- variable renaming
+  {
+    'filipdutescu/renamer.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('renamer').setup()
+    end
+  },
+
+  {
+    "ibhagwan/fzf-lua",
+  },
+
+  -- Session manager
+  -- {
+  --   "gennaro-tedesco/nvim-possession",
+  --   dependencies = {
+  --     "ibhagwan/fzf-lua",
+  --   },
+  --   config = function()
+  --     require("nvim-possession").setup({
+  --       autoload = true -- default false
+  --     })
+  --   end,
+  --   init = function()
+  --     local possession = require("nvim-possession")
+  --     vim.keymap.set("n", "<leader>sl", function()
+  --       possession.list()
+  --     end)
+  --     vim.keymap.set("n", "<leader>sn", function()
+  --       possession.new()
+  --     end)
+  --     vim.keymap.set("n", "<leader>su", function()
+  --       possession.update()
+  --     end)
+  --     vim.keymap.set("n", "<leader>sd", function()
+  --       possession.delete()
+  --     end)
+  --   end,
+  -- },
 
   -- Live Server for HTML
   {
@@ -298,7 +341,7 @@ require('lazy').setup({
         hide_cursor = false,      -- Hide the cursor while scrolling. Requires enabling termguicolors!
         horizontal_scroll = true, -- Enable smooth horizontal scrolling when view shifts left or right.
         max_length = -1,          -- Maximum length (in ms) of a command. The line delay will be
-        -- re-calculated. Setting to -1 will disable this option.
+                                    -- re-calculated. Setting to -1 will disable this option.
         scroll_limit = 150,       -- Max number of lines moved before scrolling is skipped. Setting
       }
     end
@@ -529,7 +572,7 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 vim.api.nvim_create_autocmd('BufWritePost', {
   pattern = '[_]*.sass,[_]*.scss',
   callback = function()
--- find files which end with .sass or .scss and do not start with _
+    -- find files which end with .sass or .scss and do not start with _
 
     local matched_files = vim.fn.system("find *.scss")
     local files_table = vim.split(matched_files, '\n')
@@ -616,6 +659,9 @@ sunmap ge
 " xmap <silent> ie <Plug>CamelCaseMotion_ie
 ]])
 
+-- renamer
+vim.keymap.set({ 'i', 'n', 'v' }, '<F2>', function() require("renamer").rename() end, { noremap = true, silent = true })
+
 -- leap.nvim
 local function leap_all_windows()
   require('leap').leap { target_windows = vim.tbl_filter(
@@ -624,7 +670,8 @@ local function leap_all_windows()
   ) }
 end
 
-vim.keymap.set('n', 's', ':lua require(\'leap\').leap { target_windows = { vim.fn.win_getid() } }<CR>', { desc = 'Bi-directional leap within window' })
+vim.keymap.set('n', 's', ':lua require(\'leap\').leap { target_windows = { vim.fn.win_getid() } }<CR>',
+  { desc = 'Bi-directional leap within window' })
 vim.keymap.set('n', 'S', leap_all_windows, { desc = 'Leap across all open windows' })
 
 
@@ -643,7 +690,7 @@ vim.keymap.set('n', '<leader>ld', ':Telescope lsp_definitions<CR>', { desc = 'Go
 vim.keymap.set('n', '<leader>lr', ':Telescope lsp_references<CR>', { desc = 'Go to reference' })
 vim.keymap.set('n', '<leader>ls', ':Telescope lsp_document_symbols<CR>', { desc = 'View document symbols' })
 vim.keymap.set('n', '<leader>li', ':Telescope lsp_implementations<CR>', { desc = 'Go to implementation' })
-vim.keymap.set('n', '<C-k>', ':lua vim.lsp.buf.hover()<CR>')
+vim.keymap.set({ 'n', 'i' }, '<C-k>', function() vim.lsp.buf.hover() end)
 
 -- Telescope open git repos
 vim.keymap.set('n', '<leader>fr', ':Telescope repo cached_list<CR>', { desc = 'Open list of git repos' })

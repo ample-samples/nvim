@@ -586,21 +586,21 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 -- setup windows for exercism project
 vim.api.nvim_create_user_command('ExercismSetup',
   function()
-    local selected_window_number = vim.api.nvim_win_get_number(0)
 
+    -- close all but the last window
     local window_list = vim.api.nvim_list_wins()
     for i = 2, #window_list, 1 do
       vim.api.nvim_win_close(window_list[i], true)
     end
 
+    -- delete all buffers
     local buffer_list = vim.api.nvim_list_bufs()
-    for key, value in pairs(buffer_list) do
-      -- print(key, value)
+    for _, value in pairs(buffer_list) do
       vim.api.nvim_buf_delete(value, { force = true })
     end
 
+    -- open exercism prjoect related files in buffers
     local files_in_current_dir = vim.fn.systemlist("ls")
-    -- if file is a ts file, open in a buffer
     local file_regex = "%.ts$"
     for _, value in pairs(files_in_current_dir) do
       if string.match(value, file_regex) then
@@ -611,14 +611,14 @@ vim.api.nvim_create_user_command('ExercismSetup',
     end
     vim.api.nvim_command("tab term")
 
+    -- open 4 windows in splits
     buffer_list = vim.api.nvim_list_bufs()
     vim.cmd('split')
     vim.cmd('vsplit')
     vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[3])
     vim.cmd('vsplit')
 
-
-    
+    -- open buffers in windows
     window_list = vim.api.nvim_list_wins()
     vim.api.nvim_win_set_buf(window_list[1], buffer_list[4])
     vim.api.nvim_win_set_buf(window_list[2], buffer_list[2])

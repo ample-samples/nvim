@@ -610,6 +610,22 @@ vim.api.nvim_create_user_command('ExercismSetup',
       end
     end
     vim.api.nvim_command("tab term")
+
+    buffer_list = vim.api.nvim_list_bufs()
+    vim.cmd('split')
+    vim.cmd('vsplit')
+    vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[3])
+    vim.cmd('vsplit')
+
+
+    
+    window_list = vim.api.nvim_list_wins()
+    vim.api.nvim_win_set_buf(window_list[1], buffer_list[4])
+    vim.api.nvim_win_set_buf(window_list[2], buffer_list[2])
+    vim.api.nvim_win_set_buf(window_list[3], buffer_list[3])
+    vim.api.nvim_win_set_buf(window_list[4], buffer_list[1])
+    vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[2])
+
   end,
   {}
 )

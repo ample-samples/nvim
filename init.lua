@@ -104,30 +104,18 @@ require('lazy').setup({
     opts = {}
   },
 
-  -- Colorizer
+  -- -- sass colorizer
   -- {
-  --   'norcalli/nvim-colorizer.lua'
+  --   'NvChad/nvim-colorizer.lua',
+  --   config = function()
+  --     require 'colorizer'.setup {
+  --       user_default_options = {
+  --         sass = { enable = true }
+  --       }
+  --     }
+  --   end
   -- },
-  {
-    'NvChad/nvim-colorizer.lua',
-    config = function()
-      require 'colorizer'.setup {
-        user_default_options = {
-          sass = { enable = true }
-        }
-      }
-    end
-  },
-
-  --leap.nvim
-  {
-    'ggandor/leap.nvim',
-    lazy = true,
-    config = function()
-      require('leap').add_default_mappings()
-    end
-  },
-
+  --
   -- Rainbow brackets
   {
     'HiPhish/nvim-ts-rainbow2',
@@ -144,12 +132,22 @@ require('lazy').setup({
     }
   },
 
-  -- variable renaming
+  -- navbuddy
   {
-    'filipdutescu/renamer.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim' },
+    "SmiteshP/nvim-navbuddy",
+    dependencies = {
+      "neovim/nvim-lspconfig",
+      "SmiteshP/nvim-navic",
+      "MunifTanjim/nui.nvim",
+      "numToStr/Comment.nvim",        -- Optional
+      "nvim-telescope/telescope.nvim" -- Optional
+    },
     config = function()
-      require('renamer').setup()
+      require('nvim-navbuddy').setup({
+        lsp = {
+          auto_attach = true
+        }
+      })
     end
   },
 
@@ -341,7 +339,7 @@ require('lazy').setup({
         hide_cursor = false,      -- Hide the cursor while scrolling. Requires enabling termguicolors!
         horizontal_scroll = true, -- Enable smooth horizontal scrolling when view shifts left or right.
         max_length = -1,          -- Maximum length (in ms) of a command. The line delay will be
-                                    -- re-calculated. Setting to -1 will disable this option.
+        -- re-calculated. Setting to -1 will disable this option.
         scroll_limit = 150,       -- Max number of lines moved before scrolling is skipped. Setting
       }
     end
@@ -585,6 +583,47 @@ vim.api.nvim_create_autocmd('BufWritePost', {
   end
 })
 
+-- setup windows for exercism project
+vim.api.nvim_create_user_command('ExercismSetup',
+  function()
+    local selected_window_number = vim.api.nvim_win_get_number(0)
+
+    local window_list = vim.api.nvim_list_wins()
+    for i = 2, #window_list, 1 do
+      vim.api.nvim_win_close(window_list[i], true)
+    end
+
+    local buffer_list = vim.api.nvim_list_bufs()
+    for key, value in pairs(buffer_list) do
+      -- print(key, value)
+      vim.api.nvim_buf_delete(value, { force = true })
+    end
+
+    local files_in_current_dir = vim.fn.systemlist("ls")
+    -- if file is a ts file, open in a buffer
+    local file_regex = "%.ts$"
+    for _, value in pairs(files_in_current_dir) do
+      if string.match(value, file_regex) then
+        vim.api.nvim_command("edit " .. value)
+        elseif string.match(value, "README.md") then
+          vim.api.nvim_command("edit " .. value)
+      end
+    end
+    vim.api.nvim_command("tab term")
+  end,
+  {}
+)
+
+-- vim.api.nvim_create_user_command('ExercismSetup',
+--   function()
+--     local selected_window_number = vim.cmd('echo winnr()')
+--     print(selected_window_number)
+--
+--     vim.cmd('vsplit')
+--   end,
+--   {}
+-- )
+
 -- Basic settings
 vim.o.mouse = 'a'
 vim.o.smartcase = true
@@ -659,22 +698,6 @@ sunmap ge
 " xmap <silent> ie <Plug>CamelCaseMotion_ie
 ]])
 
--- renamer
-vim.keymap.set({ 'i', 'n', 'v' }, '<F2>', function() require("renamer").rename() end, { noremap = true, silent = true })
-
--- leap.nvim
-local function leap_all_windows()
-  require('leap').leap { target_windows = vim.tbl_filter(
-    function(win) return vim.api.nvim_win_get_config(win).focusable end,
-    vim.api.nvim_tabpage_list_wins(0)
-  ) }
-end
-
-vim.keymap.set('n', 's', ':lua require(\'leap\').leap { target_windows = { vim.fn.win_getid() } }<CR>',
-  { desc = 'Bi-directional leap within window' })
-vim.keymap.set('n', 'S', leap_all_windows, { desc = 'Leap across all open windows' })
-
-
 -- File shortcuts
 vim.keymap.set('n', '<leader>oe', ':e /home/todd/Documents/Projects/exercism-exercises/<CR>')
 vim.keymap.set('n', '<leader>op', ':e /home/todd/Documents/Projects/<CR>')
@@ -691,6 +714,7 @@ vim.keymap.set('n', '<leader>lr', ':Telescope lsp_references<CR>', { desc = 'Go 
 vim.keymap.set('n', '<leader>ls', ':Telescope lsp_document_symbols<CR>', { desc = 'View document symbols' })
 vim.keymap.set('n', '<leader>li', ':Telescope lsp_implementations<CR>', { desc = 'Go to implementation' })
 vim.keymap.set({ 'n', 'i' }, '<C-k>', function() vim.lsp.buf.hover() end)
+vim.keymap.set({ 'n', 'i' }, '<C-f>', function() vim.lsp.buf.format() end)
 
 -- Telescope open git repos
 vim.keymap.set('n', '<leader>fr', ':Telescope repo cached_list<CR>', { desc = 'Open list of git repos' })
@@ -715,6 +739,9 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 -- nvim-tree mappings
 vim.keymap.set({ 'n', 'v' }, '<leader>t', ':NvimTreeFocus<CR>')
 vim.keymap.set({ 'n', 'v' }, '<leader>T', ':NvimTreeFindFileToggle<CR>')
+
+-- navbuddy
+vim.keymap.set({ 'n', 'v' }, '<leader>n', ':Navbuddy<CR>')
 
 -- Remap for dealing with word wrap
 -- vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })

@@ -243,6 +243,12 @@ require('lazy').setup({
   -- },
 
   {
+    "pmizio/typescript-tools.nvim",
+    dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
+    opts = {},
+  },
+
+  {
     'goolord/alpha-nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     config = function()
@@ -405,7 +411,7 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
       on_attach = function(bufnr)
-        vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk, { buffer = bufnr, desc = 'Preview git hunk' })
+        vim.keymap.set('n', '<leader>gh', require('gitsigns').preview_hunk, { buffer = bufnr, desc = 'Preview git hunk' })
 
         -- don't override the built-in and fugitive keymaps
         local gs = package.loaded.gitsigns
@@ -585,8 +591,7 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 
 -- setup windows for exercism project
 vim.api.nvim_create_user_command('ExercismSetup',
-  function()
-
+  function(opts)
     -- close all but the last window
     local window_list = vim.api.nvim_list_wins()
     for i = 2, #window_list, 1 do
@@ -601,12 +606,12 @@ vim.api.nvim_create_user_command('ExercismSetup',
 
     -- open exercism prjoect related files in buffers
     local files_in_current_dir = vim.fn.systemlist("ls")
-    local file_regex = "%.ts$"
+    local file_regex = "%." .. opts.args .. "$"
     for _, value in pairs(files_in_current_dir) do
       if string.match(value, file_regex) then
         vim.api.nvim_command("edit " .. value)
-        elseif string.match(value, "README.md") then
-          vim.api.nvim_command("edit " .. value)
+      elseif string.match(value, "README.md") then
+        vim.api.nvim_command("edit " .. value)
       end
     end
     vim.api.nvim_command("tab term")
@@ -625,9 +630,8 @@ vim.api.nvim_create_user_command('ExercismSetup',
     vim.api.nvim_win_set_buf(window_list[3], buffer_list[3])
     vim.api.nvim_win_set_buf(window_list[4], buffer_list[1])
     vim.api.nvim_set_current_win(vim.api.nvim_list_wins()[2])
-
   end,
-  {}
+  { nargs = 1 }
 )
 
 -- vim.api.nvim_create_user_command('ExercismSetup',
@@ -1011,6 +1015,11 @@ local on_attach = function(_, bufnr)
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
     vim.lsp.buf.format()
   end, { desc = 'Format current buffer with LSP' })
+  for k, v in pairs(vim.lsp.get_active_clients()) do
+    if v.name == 'tsserver' then
+      vim.lsp.stop_client(v.id)
+    end
+  end
 end
 
 -- document existing key chains
@@ -1136,6 +1145,20 @@ cmp.setup {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
   },
+  sorting = {
+    priority_weight = 2,
+    comparators = {
+      cmp.config.compare.offset,
+      cmp.config.compare.exact,
+      cmp.config.compare.score,
+      cmp.config.compare.recently_used,
+      cmp.config.compare.locality,
+      cmp.config.compare.kind,
+      -- cmp.config.compare.sort_text,
+      cmp.config.compare.length,
+      cmp.config.compare.order,
+    }
+  }
 };
 
 cmp.setup.cmdline('/', {

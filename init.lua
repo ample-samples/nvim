@@ -223,6 +223,7 @@ require('lazy').setup({
       vim.keymap.set('i', '<C-.>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
       vim.keymap.set('i', '<C-,>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
       vim.keymap.set('i', '<C-backspace>', function() return vim.fn['codeium#Clear']() end, { expr = true })
+      vim.g.codeium_enabled = "v:false"
     end
   },
 
@@ -245,7 +246,12 @@ require('lazy').setup({
   {
     "pmizio/typescript-tools.nvim",
     dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
-    opts = {},
+    opts = {
+      jsx_close_tag = {
+        enable = false,
+        filetypes = { "javascriptreact", "typescriptreact" },
+      }
+    },
   },
 
   {
@@ -338,15 +344,15 @@ require('lazy').setup({
         override_keymaps = true,  -- The plugin keymaps will override any existing keymaps.
 
         -- OPTIONS:
-        always_scroll = false,    -- Scroll the cursor even when the window hasn't scrolled.
-        centered = true,          -- Keep cursor centered in window when using window scrolling.
-        disabled = false,         -- Disables the plugin.
-        default_delay = 5,        -- The default delay (in ms) between each line when scrolling.
-        hide_cursor = false,      -- Hide the cursor while scrolling. Requires enabling termguicolors!
-        horizontal_scroll = true, -- Enable smooth horizontal scrolling when view shifts left or right.
-        max_length = -1,          -- Maximum length (in ms) of a command. The line delay will be
+        always_scroll = false,     -- Scroll the cursor even when the window hasn't scrolled.
+        centered = true,           -- Keep cursor centered in window when using window scrolling.
+        disabled = false,          -- Disables the plugin.
+        default_delay = 5,         -- The default delay (in ms) between each line when scrolling.
+        hide_cursor = false,       -- Hide the cursor while scrolling. Requires enabling termguicolors!
+        horizontal_scroll = false, -- Enable smooth horizontal scrolling when view shifts left or right.
+        max_length = -1,           -- Maximum length (in ms) of a command. The line delay will be
         -- re-calculated. Setting to -1 will disable this option.
-        scroll_limit = 150,       -- Max number of lines moved before scrolling is skipped. Setting
+        scroll_limit = 150,        -- Max number of lines moved before scrolling is skipped. Setting
       }
     end
   },
@@ -733,7 +739,7 @@ vim.keymap.set('n', '<leader>ld', ':Telescope lsp_definitions<CR>', { desc = 'Go
 vim.keymap.set('n', '<leader>lr', ':Telescope lsp_references<CR>', { desc = 'Go to reference' })
 vim.keymap.set('n', '<leader>ls', ':Telescope lsp_document_symbols<CR>', { desc = 'View document symbols' })
 vim.keymap.set('n', '<leader>li', ':Telescope lsp_implementations<CR>', { desc = 'Go to implementation' })
-vim.keymap.set({ 'n', 'i' }, '<C-k>', function() vim.lsp.buf.hover() end)
+vim.keymap.set({ 'n', 'i' }, '<C-j>', function() vim.lsp.buf.hover() end)
 vim.keymap.set({ 'n', 'i' }, '<C-f>', function() vim.lsp.buf.format() end)
 
 -- Telescope open git repos

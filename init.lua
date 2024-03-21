@@ -248,7 +248,7 @@ require('lazy').setup({
     dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
     opts = {
       jsx_close_tag = {
-        enable = false,
+        enable = true,
         filetypes = { "javascriptreact", "typescriptreact" },
       }
     },

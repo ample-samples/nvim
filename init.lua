@@ -570,30 +570,30 @@ if vim.g.neovide then
 end
 
 -- Auto compile sass
-vim.api.nvim_create_autocmd('BufWritePost', {
-  pattern = '[^_]*.sass,[^_]*.scss',
-  callback = function()
-    local filepath = string.gsub(vim.fn.expand('%:p'), " ", "\\ ")
-    local command = string.format('!sass %s', filepath) .. " " .. vim.fn.expand('%:r.css') .. ".css"
-    vim.cmd(command)
-  end
-})
-
-vim.api.nvim_create_autocmd('BufWritePost', {
-  pattern = '[_]*.sass,[_]*.scss',
-  callback = function()
-    -- find files which end with .sass or .scss and do not start with _
-
-    local matched_files = vim.fn.system("find *.scss")
-    local files_table = vim.split(matched_files, '\n')
-    for _, value in pairs(files_table) do
-      if string.sub(value, 1, 1) ~= '_' and value ~= "" then
-        local css_name = string.gsub(value, ".scss", "") .. ".css"
-        vim.fn.system("sass " .. value .. " " .. css_name)
-      end
-    end
-  end
-})
+-- vim.api.nvim_create_autocmd('BufWritePost', {
+--   pattern = '[^_]*.sass,[^_]*.scss',
+--   callback = function()
+--     local filepath = string.gsub(vim.fn.expand('%:p'), " ", "\\ ")
+--     local command = string.format('!sass %s', filepath) .. " " .. vim.fn.expand('%:r.css') .. ".css"
+--     vim.cmd(command)
+--   end
+-- })
+--
+-- vim.api.nvim_create_autocmd('BufWritePost', {
+--   pattern = '[_]*.sass,[_]*.scss',
+--   callback = function()
+--     -- find files which end with .sass or .scss and do not start with _
+--
+--     local matched_files = vim.fn.system("find *.scss")
+--     local files_table = vim.split(matched_files, '\n')
+--     for _, value in pairs(files_table) do
+--       if string.sub(value, 1, 1) ~= '_' and value ~= "" then
+--         local css_name = string.gsub(value, ".scss", "") .. ".css"
+--         vim.fn.system("sass " .. value .. " " .. css_name)
+--       end
+--     end
+--   end
+-- })
 
 -- setup windows for exercism project
 vim.api.nvim_create_user_command('ExercismSetup',
@@ -1103,6 +1103,14 @@ require('luasnip.loaders.from_vscode').lazy_load()
 luasnip.config.setup {}
 
 -- console.log({$1})
+luasnip.add_snippets("typescriptreact", {
+  luasnip.snippet("cl", {
+    luasnip.text_node("console.log("),
+    luasnip.insert_node(1),
+    luasnip.text_node(")"),
+  })
+})
+
 luasnip.add_snippets("typescript", {
   luasnip.snippet("cl", {
     luasnip.text_node("console.log("),

@@ -1,3 +1,4 @@
+--
 --[[
 
 =====================================================================
@@ -60,7 +61,9 @@ if not vim.loop.fs_stat(lazypath) then
   }
 end
 vim.opt.rtp:prepend(lazypath)
-
+local function getErrorCount()
+  return '✗: ' .. #vim.diagnostic.get(0, { severity = { min = vim.diagnostic.severity.ERROR } })
+end
 -- [[ Configure plugins ]]
 -- NOTE: Here is where you install your plugins.
 --  You can configure plugins using the `config` key.
@@ -81,9 +84,18 @@ require('lazy').setup({
 
   -- Auto pairs
   'https://github.com/cohama/lexima.vim',
+  {
+    "nvim-telescope/telescope-file-browser.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
+  },
 
   -- html
-  'mattn/emmet-vim',
+  {
+    'https://github.com/olrtg/nvim-emmet.git',
+    config = function()
+      vim.keymap.set({ "n", "v" }, '<leader>xe', require('nvim-emmet').wrap_with_abbreviation)
+    end,
+  },
 
   -- Use w, e and b to move through camelCase
   "bkad/CamelCaseMotion",
@@ -218,7 +230,7 @@ require('lazy').setup({
     'Exafunction/codeium.vim',
     config = function()
       -- Change '<C-g>' here to any keycode you like.
-      vim.g.codeium_disable_bindings = 1
+      vim.g.codeium_disable_bindings = 0
       vim.keymap.set('i', '<C-Enter>', function() return vim.fn['codeium#Accept']() end, { expr = true })
       vim.keymap.set('i', '<C-.>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
       vim.keymap.set('i', '<C-,>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
@@ -341,7 +353,7 @@ require('lazy').setup({
         default_keymaps = true,   -- Create default keymaps.
         extra_keymaps = true,     -- Create extra keymaps.
         extended_keymaps = false, -- Create extended keymaps.
-        override_keymaps = true,  -- The plugin keymaps will override any existing keymaps.
+        override_keymaps = false, -- The plugin keymaps will override any existing keymaps.
 
         -- OPTIONS:
         always_scroll = false,     -- Scroll the cursor even when the window hasn't scrolled.
@@ -399,6 +411,24 @@ require('lazy').setup({
       'rafamadriz/friendly-snippets',
 
     },
+  },
+
+  -- java
+  {
+    'nvim-java/nvim-java',
+    config = function()
+      require('java').setup()
+      require('lspconfig').jdtls.setup({})
+    end
+  },
+
+  -- cpp
+  {
+    'skywind3000/asyncrun.vim'
+  },
+
+  {
+    'skywind3000/asynctasks.vim'
   },
 
   -- Useful plugin to show you pending keybinds.
@@ -465,6 +495,7 @@ require('lazy').setup({
       },
       sections = {
         lualine_x = { '%3{codeium#GetStatusString()}', 'filetype' },
+        lualine_y = { getErrorCount, 'filetype' },
       }
     }
   },
@@ -570,30 +601,29 @@ if vim.g.neovide then
 end
 
 -- Auto compile sass
--- vim.api.nvim_create_autocmd('BufWritePost', {
---   pattern = '[^_]*.sass,[^_]*.scss',
---   callback = function()
---     local filepath = string.gsub(vim.fn.expand('%:p'), " ", "\\ ")
---     local command = string.format('!sass %s', filepath) .. " " .. vim.fn.expand('%:r.css') .. ".css"
---     vim.cmd(command)
---   end
--- })
---
--- vim.api.nvim_create_autocmd('BufWritePost', {
---   pattern = '[_]*.sass,[_]*.scss',
---   callback = function()
---     -- find files which end with .sass or .scss and do not start with _
---
---     local matched_files = vim.fn.system("find *.scss")
---     local files_table = vim.split(matched_files, '\n')
---     for _, value in pairs(files_table) do
---       if string.sub(value, 1, 1) ~= '_' and value ~= "" then
---         local css_name = string.gsub(value, ".scss", "") .. ".css"
---         vim.fn.system("sass " .. value .. " " .. css_name)
---       end
---     end
---   end
--- })
+vim.api.nvim_create_autocmd('BufWritePost', {
+  pattern = '[^_]*.sass,[^_]*.scss',
+  callback = function()
+    local filepath = string.gsub(vim.fn.expand('%:p'), " ", "\\ ")
+    local command = string.format('!sass %s', filepath) .. " " .. vim.fn.expand('%:r.css') .. ".css"
+    vim.cmd(command)
+  end
+})
+
+vim.api.nvim_create_autocmd('BufWritePost', {
+  pattern = '[_]*.sass,[_]*.scss',
+  callback = function()
+    -- find files which end with .sass or .scss and do not start with _
+    local matched_files = vim.fn.system("find *.scss")
+    local files_table = vim.split(matched_files, '\n')
+    for _, value in pairs(files_table) do
+      if string.sub(value, 1, 1) ~= '_' and value ~= "" then
+        local css_name = string.gsub(value, ".scss", "") .. ".css"
+        vim.fn.system("sass " .. value .. " " .. css_name)
+      end
+    end
+  end
+})
 
 -- setup windows for exercism project
 vim.api.nvim_create_user_command('ExercismSetup',
@@ -656,7 +686,6 @@ vim.o.smartcase = true
 vim.o.number = true
 vim.o.splitright = true
 vim.o.title = true
-vim.o.noerrorbells = true
 vim.o.wrap = false
 vim.o.scrolloff = 5
 vim.o.sidescrolloff = 10
@@ -705,6 +734,17 @@ vim.o.termguicolors = true
 
 -- [[ Basic Keymaps ]]
 vim.keymap.set('n', '<leader>h', ':Alpha<CR>')
+vim.keymap.set({ 'n', 'v' }, '<C-;>', '@:')
+
+-- asynctasks
+vim.g.asynctasks_term_rows = 20 -- set height for the horizontal terminal split
+vim.g.asynctasks_term_cols = 80 -- set width for vertical terminal split
+vim.cmd([[
+let g:asyncrun_open = 6
+]])
+vim.keymap.set('n', '<F5>', ':AsyncTask file-build-and-run<CR>')
+vim.keymap.set('n', '<F6>', ':AsyncTask file-run<CR>')
+vim.keymap.set('n', '<F4>', ':AsyncTask')
 
 -- camelCaseMotion
 vim.cmd([[
@@ -761,6 +801,11 @@ vim.keymap.set({ 'n', 'v' }, '<F3>', ':silent update<Bar>silent !xdg-open %:p &<
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
+
+-- telescope-file-browser mappings
+vim.keymap.set({ "n", "v" }, "<leader>fb", ":Telescope file_browser<CR>")
+
+vim.keymap.set({ 'n', 'v' }, '<leader>T', ':NvimTreeFindFileToggle<CR>')
 
 -- nvim-tree mappings
 vim.keymap.set({ 'n', 'v' }, '<leader>t', ':NvimTreeFocus<CR>')
@@ -822,6 +867,11 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
+  extensions = {
+    file_browser = {
+      hidden = { file_browser = true, folder_browser = true }
+    }
+  },
   defaults = {
     mappings = {
       i = {
@@ -913,7 +963,7 @@ vim.defer_fn(function()
     },
 
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
+    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash', 'java' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = true,
@@ -1197,24 +1247,25 @@ cmp.setup.cmdline(':', {
 })
 
 -- Emmet leader key
+-- vim.cmd([[
+-- unmap <C-y>
+-- imap   <C-y>,   <plug>(emmet-expand-abbr)
+-- imap   <C-y>;   <plug>(emmet-expand-word)
+-- imap   <C-y>u   <plug>(emmet-update-tag)
+-- imap   <C-y>d   <plug>(emmet-balance-tag-inward)
+-- imap   <C-y>D   <plug>(emmet-balance-tag-outward)
+-- imap   <C-y>n   <plug>(emmet-move-next)
+-- imap   <C-y>N   <plug>(emmet-move-prev)
+-- imap   <C-y>i   <plug>(emmet-image-size)
+-- imap   <C-y>/   <plug>(emmet-toggle-comment)
+-- imap   <C-y>j   <plug>(emmet-split-join-tag)
+-- imap   <C-y>k   <plug>(emmet-remove-tag)
+-- imap   <C-y>a   <plug>(emmet-anchorize-url)
+-- imap   <C-y>A   <plug>(emmet-anchorize-summary)
+-- imap   <C-y>m   <plug>(emmet-merge-lines)
+-- imap   <C-y>c   <plug>(emmet-code-pretty)
+-- ]])
 -- vim.g.user_emmet_leader_key = '<C-y>'
-vim.cmd([[
-imap   <C-y>,   <plug>(emmet-expand-abbr)
-imap   <C-y>;   <plug>(emmet-expand-word)
-imap   <C-y>u   <plug>(emmet-update-tag)
-imap   <C-y>d   <plug>(emmet-balance-tag-inward)
-imap   <C-y>D   <plug>(emmet-balance-tag-outward)
-imap   <C-y>n   <plug>(emmet-move-next)
-imap   <C-y>N   <plug>(emmet-move-prev)
-imap   <C-y>i   <plug>(emmet-image-size)
-imap   <C-y>/   <plug>(emmet-toggle-comment)
-imap   <C-y>j   <plug>(emmet-split-join-tag)
-imap   <C-y>k   <plug>(emmet-remove-tag)
-imap   <C-y>a   <plug>(emmet-anchorize-url)
-imap   <C-y>A   <plug>(emmet-anchorize-summary)
-imap   <C-y>m   <plug>(emmet-merge-lines)
-imap   <C-y>c   <plug>(emmet-code-pretty)
-]])
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

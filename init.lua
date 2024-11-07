@@ -134,6 +134,11 @@ require('lazy').setup({
     dependencies = { 'nvim-treesitter' }
   },
 
+  -- Fixes indentation for python
+  {
+    'Vimjas/vim-python-pep8-indent'
+  },
+
   {
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -346,25 +351,32 @@ require('lazy').setup({
 
   -- Smooth scrolling
   {
+    -- [cinnamon.nvim] The 'max_length' option has been deprecated. Please use 'options.max_delta.time' instead
+    -- [cinnamon.nvim] The 'scroll_limit' option has been deprecated. Please use 'options.max_delta.line' instead
+    -- [cinnamon.nvim] The 'default_keymaps' option has been deprecated. Please use 'keymaps.basic' instead
+    -- [cinnamon.nvim] The 'extra_keymaps' option has beeen deprecated. Please use 'keymaps.extra' instead
+    -- [cinnamon.nvim] The 'extended_keymaps' option has been deprecated. Please use 'keymaps.extra' instead
+    -- [cinnamon.nvim] The 'override_keymaps' option has been removed
+    -- [cinnamon.nvim] The 'always_scroll' option has been deprecated. Please use 'options.mode' instead
+    -- [cinnamon.nvim] The 'centered' option has been deprecated. Append 'zz' to your command to replicate
+    -- [cinnamon.nvim] The 'default_delay' option has been deprecated. Please use 'options.delay' instead
+    -- [cinnamon.nvim] The 'hide_cursor' option has been removed. The cursor is hidden when using 'options.mode = "window"
+    -- [cinnamon.nvim] The 'horizontal_scroll' option has been removed. Horizontal scrolling is always enabled
+
     'declancm/cinnamon.nvim',
     config = function()
       require('cinnamon').setup {
-        -- KEYMAPS:
-        default_keymaps = true,   -- Create default keymaps.
-        extra_keymaps = true,     -- Create extra keymaps.
-        extended_keymaps = false, -- Create extended keymaps.
-        override_keymaps = false, -- The plugin keymaps will override any existing keymaps.
-
-        -- OPTIONS:
-        always_scroll = false,     -- Scroll the cursor even when the window hasn't scrolled.
-        centered = true,           -- Keep cursor centered in window when using window scrolling.
-        disabled = false,          -- Disables the plugin.
-        default_delay = 5,         -- The default delay (in ms) between each line when scrolling.
-        hide_cursor = false,       -- Hide the cursor while scrolling. Requires enabling termguicolors!
-        horizontal_scroll = false, -- Enable smooth horizontal scrolling when view shifts left or right.
-        max_length = -1,           -- Maximum length (in ms) of a command. The line delay will be
-        -- re-calculated. Setting to -1 will disable this option.
-        scroll_limit = 150,        -- Max number of lines moved before scrolling is skipped. Setting
+        keymaps = {
+          basic = true,
+          extra = true
+        },
+        options = {
+          mode = 'cursor',
+          delay = 5,
+          max_delta = {
+            time = 400,
+          }
+        }
       }
     end
   },
@@ -477,9 +489,19 @@ require('lazy').setup({
     -- Theme inspired by Atom
     'navarasu/onedark.nvim',
     priority = 1000,
+    -- opts = {
+    --   transparent = true
+    -- },
     config = function()
       vim.cmd.colorscheme 'onedark'
+      -- require('onedark').setup({
+      -- })
+      -- require('onedark').load()
     end,
+  },
+
+  {
+    'xiyaowong/transparent.nvim'
   },
 
   {
@@ -682,7 +704,6 @@ vim.api.nvim_create_user_command('ExercismSetup',
 
 -- Basic settings
 vim.o.mouse = 'a'
-vim.o.smartcase = true
 vim.o.number = true
 vim.o.splitright = true
 vim.o.title = true
@@ -695,11 +716,15 @@ vim.o.shiftwidth = 2
 vim.o.softtabstop = 2
 vim.o.tabstop = 2
 vim.o.autoindent = true
+vim.o.autoread = true
 
 
 -- Make line numbers default
 vim.wo.relativenumber = true
 vim.o.number = true
+
+-- highlight line numbers in visual mode
+
 
 vim.go.wildmode = "list"
 
@@ -930,6 +955,7 @@ end
 
 vim.api.nvim_create_user_command('LiveGrepGitRoot', live_grep_git_root, {})
 
+--
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })

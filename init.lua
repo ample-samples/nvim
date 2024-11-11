@@ -172,6 +172,29 @@ require('lazy').setup({
     "ibhagwan/fzf-lua",
   },
 
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, -- if you use the mini.nvim suite
+    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
+    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
+    ---@module 'render-markdown'
+    ---@type render.md.UserConfig
+    opts = {},
+  },
+
+  {
+    'dstein64/vim-startuptime'
+  },
+
+  -- smarter text wrapping
+  {
+    "andrewferrier/wrapping.nvim",
+    opts = {     auto_set_mode_heuristically = false },
+    config = function()
+        require("wrapping").setup()
+    end
+  },
+
   -- Session manager
   -- {
   --   "gennaro-tedesco/nvim-possession",
@@ -365,7 +388,7 @@ require('lazy').setup({
 
     'declancm/cinnamon.nvim',
     config = function()
-      require('cinnamon').setup {
+      local cinnamon = require('cinnamon').setup {
         keymaps = {
           basic = true,
           extra = true
@@ -378,6 +401,9 @@ require('lazy').setup({
           }
         }
       }
+
+      -- center screen on cursor 
+      vim.keymap.set("n", "G", function() require('cinnamon').scroll("Gzz") end)
     end
   },
 
@@ -622,6 +648,24 @@ if vim.g.neovide then
   vim.keymap.set('i', '<M-v>', '<ESC>l"*Pli') -- Paste insert mode
 end
 
+-- auto text wrap for md files
+local soft_wrap_pattern = '*.md'
+vim.api.nvim_create_autocmd('BufWinEnter', {
+  pattern = { soft_wrap_pattern },
+  callback = function()
+    vim.cmd([[silent SoftWrapMode]])
+    -- require("wrapping").soft_wrap_mode()
+  end,
+})
+
+vim.api.nvim_create_autocmd({ 'BufWinLeave' }, {
+  pattern = { soft_wrap_pattern },
+  callback = function()
+    vim.cmd([[ToggleWrapMode]])
+    -- require("wrapping").toggle_wrap_mode()
+  end,
+})
+
 -- Auto compile sass
 vim.api.nvim_create_autocmd('BufWritePost', {
   pattern = '[^_]*.sass,[^_]*.scss',
@@ -720,7 +764,7 @@ vim.o.autoread = true
 
 
 -- Make line numbers default
-vim.wo.relativenumber = true
+-- vim.wo.relativenumber = true
 vim.o.number = true
 
 -- highlight line numbers in visual mode
@@ -759,10 +803,15 @@ vim.o.termguicolors = true
 
 -- [[ Basic Keymaps ]]
 vim.keymap.set('n', '<leader>h', ':Alpha<CR>')
-vim.keymap.set({ 'n', 'v' }, '<C-;>', '@:')
+vim.keymap.set({ 'n', 'v' }, '<F8>', '@:')
+-- vim.cmd([[set clipboard+=unnamedplus]])
+-- vim.keymap.set('v', '<leader>y', '"*y')         -- Copy
+-- vim.keymap.set('n', '<leader>p', '"*P')         -- Paste normal mode
+-- Neovide cliboard
+vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]], { desc = "Copy to system clipboard" })
 
 -- asynctasks
-vim.g.asynctasks_term_rows = 20 -- set height for the horizontal terminal split
+vim.g.asynctasks_term_rows = 40 -- set height for the horizontal terminal split
 vim.g.asynctasks_term_cols = 80 -- set width for vertical terminal split
 vim.cmd([[
 let g:asyncrun_open = 6
@@ -788,6 +837,7 @@ sunmap ge
 " omap <silent> ie <Plug>CamelCaseMotion_ie
 " xmap <silent> ie <Plug>CamelCaseMotion_ie
 ]])
+
 
 -- File shortcuts
 vim.keymap.set('n', '<leader>oe', ':e /home/todd/Documents/Projects/exercism-exercises/<CR>')
@@ -1104,15 +1154,33 @@ local on_attach = function(_, bufnr)
   end
 end
 
+-- outdated method
+-- -- document existing key chains
+-- require('which-key').register {
+--   ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
+--   ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
+--   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
+--   ['<leader>h'] = { name = 'More git', _ = 'which_key_ignore' },
+--   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
+--   ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
+--   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+-- }
+
+-- New method
 -- document existing key chains
-require('which-key').register {
-  ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-  ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-  ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
-  ['<leader>h'] = { name = 'More git', _ = 'which_key_ignore' },
-  ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-  ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-  ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+require('which-key').add {
+  { '<leader>c',  name = '[C]ode' },
+  { '<leader>d', name = '[D]ocument' },
+  { '<leader>g', name = '[G]it' },
+  { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+  { '<leader>r', name = '[R]ename' },
+  { '<leader>s', name = '[S]earch' },
+  { '<leader>t', name = '[T]oggle' },
+  { '<leader>w', name = '[W]orkspace' },
+
+  -- register which-key VISUAL mode
+  -- required for visual <leader>hs (hunk stage) to work
+  { '<leader>', name = 'VISUAL <leader>', mode = { 'v' } },
 }
 
 -- mason-lspconfig requires that these setup functions are called in this order
@@ -1134,7 +1202,7 @@ local servers = {
   -- pyright = {},
   -- rust_analyzer = {},
   tailwindcss = { filetypes = { 'html', 'css', 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' } },
-  tsserver = { filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx', 'javascript', 'javascriptreact' } },
+  ts_ls = { filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx', 'javascript', 'javascriptreact' } },
   eslint = { filetypes = { '' } },
   html = { filetypes = { 'html', 'twig', 'hbs' } },
 

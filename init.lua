@@ -77,9 +77,6 @@ require('lazy').setup({
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
 
-  -- Detect tabstop and shiftwidth automatically
-  'tpope/vim-sleuth',
-
   'https://github.com/kevinhwang91/nvim-ufo.git',
 
   -- Auto pairs
@@ -143,6 +140,7 @@ require('lazy').setup({
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
+      signs = false,
       -- your configuration comes here
       -- or leave it empty to use the default settings
       -- refer to the configuration section below
@@ -174,9 +172,9 @@ require('lazy').setup({
 
   {
     'MeanderingProgrammer/render-markdown.nvim',
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, -- if you use the mini.nvim suite
+    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, -- if you use the mini.nvim suite
     -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
-    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
     ---@module 'render-markdown'
     ---@type render.md.UserConfig
     opts = {},
@@ -189,9 +187,9 @@ require('lazy').setup({
   -- smarter text wrapping
   {
     "andrewferrier/wrapping.nvim",
-    opts = {     auto_set_mode_heuristically = false },
+    opts = { auto_set_mode_heuristically = false },
     config = function()
-        require("wrapping").setup()
+      require("wrapping").setup()
     end
   },
 
@@ -231,6 +229,14 @@ require('lazy').setup({
     config = true
   },
 
+  {
+    "seblj/roslyn.nvim",
+    ft = "cs",
+    opts = {
+      -- your configuration comes here; leave empty for default settings
+    }
+  },
+
   -- Markdown preview
   {
     "iamcco/markdown-preview.nvim",
@@ -252,6 +258,111 @@ require('lazy').setup({
       -- refer to the configuration section below
     },
   },
+
+  {
+    "rachartier/tiny-inline-diagnostic.nvim",
+    event = "VeryLazy", -- Or `LspAttach`
+    priority = 1000,    -- needs to be loaded in first
+    config = function()
+      require('tiny-inline-diagnostic').setup({
+        preset = "modern",
+        options = {
+          multilines = {
+            enabled = true,
+            always_show = true
+          },
+          add_messages = false
+        }
+      })
+      vim.diagnostic.config({ virtual_text = false, signs = false })   -- Only if needed in your configuration, if you already have native LSP diagnostics
+    end
+  },
+
+  -- {
+  --   "folke/zen-mode.nvim",
+  --   opts = {
+  --     window = {
+  --       backdrop = 1, -- shade the backdrop of the Zen window. Set to 1 to keep the same as Normal
+  --       -- height and width can be:
+  --       -- * an absolute number of cells when > 1
+  --       -- * a percentage of the width / height of the editor when <= 1
+  --       -- * a function that returns the width or the height
+  --       width = 120, -- width of the Zen window
+  --       height = 1,  -- height of the Zen window
+  --       -- by default, no options are changed for the Zen window
+  --       -- uncomment any of the options below, or add other vim.wo options you want to apply
+  --       options = {
+  --         signcolumn = "no", -- disable signcolumn
+  --         number = false,    -- disable number column
+  --         -- relativenumber = false, -- disable relative numbers
+  --         -- cursorline = false, -- disable cursorline
+  --         -- cursorcolumn = false, -- disable cursor column
+  --         -- foldcolumn = "0", -- disable fold column
+  --         -- list = false, -- disable whitespace characters
+  --       },
+  --     },
+  --     plugins = {
+  --       -- disable some global vim options (vim.o...)
+  --       -- comment the lines to not apply the options
+  --       options = {
+  --         enabled = true,
+  --         ruler = true,   -- disables the ruler text in the cmd line area
+  --         showcmd = true, -- disables the command in the last line of the screen
+  --         -- you may turn on/off statusline in zen mode by setting 'laststatus'
+  --         -- statusline will be shown only if 'laststatus' == 3
+  --         laststatus = 0,              -- turn off the statusline in zen mode
+  --       },
+  --       twilight = { enabled = true }, -- enable to start Twilight when zen mode opens
+  --       gitsigns = { enabled = true }, -- disables git signs
+  --       tmux = { enabled = false },    -- disables the tmux statusline
+  --       todo = { enabled = true },     -- if set to "true", todo-comments.nvim highlights will be disabled
+  --       -- this will change the font size on kitty when in zen mode
+  --       -- to make this work, you need to set the following kitty options:
+  --       -- - allow_remote_control socket-only
+  --       -- - listen_on unix:/tmp/kitty
+  --       kitty = {
+  --         enabled = false,
+  --         font = "+4", -- font size increment
+  --       },
+  --       -- this will change the font size on alacritty when in zen mode
+  --       -- requires  Alacritty Version 0.10.0 or higher
+  --       -- uses `alacritty msg` subcommand to change font size
+  --       alacritty = {
+  --         enabled = false,
+  --         font = "14", -- font size
+  --       },
+  --       -- this will change the font size on wezterm when in zen mode
+  --       -- See alse also the Plugins/Wezterm section in this projects README
+  --       wezterm = {
+  --         enabled = false,
+  --         -- can be either an absolute font size or the number of incremental steps
+  --         font = "+4", -- (10% increase per step)
+  --       },
+  --       -- this will change the scale factor in Neovide when in zen mode
+  --       -- See alse also the Plugins/Wezterm section in this projects README
+  --       neovide = {
+  --         enabled = false,
+  --         -- Will multiply the current scale factor by this number
+  --         scale = 1.2,
+  --         -- disable the Neovide animations while in Zen mode
+  --         disable_animations = {
+  --           neovide_animation_length = 0,
+  --           neovide_cursor_animate_command_line = false,
+  --           neovide_scroll_animation_length = 0,
+  --           neovide_position_animation_length = 0,
+  --           neovide_cursor_animation_length = 0,
+  --           neovide_cursor_vfx_mode = "",
+  --         }
+  --       },
+  --     },
+  --     -- callback where you can add custom code when the Zen window opens
+  --     on_open = function(win)
+  --     end,
+  --     -- callback where you can add custom code when the Zen window closes
+  --     on_close = function()
+  --     end,
+  --   }
+  -- },
 
   -- AI Coding assistants
   {
@@ -372,40 +483,52 @@ require('lazy').setup({
     end,
   },
 
-  -- Smooth scrolling
   {
-    -- [cinnamon.nvim] The 'max_length' option has been deprecated. Please use 'options.max_delta.time' instead
-    -- [cinnamon.nvim] The 'scroll_limit' option has been deprecated. Please use 'options.max_delta.line' instead
-    -- [cinnamon.nvim] The 'default_keymaps' option has been deprecated. Please use 'keymaps.basic' instead
-    -- [cinnamon.nvim] The 'extra_keymaps' option has beeen deprecated. Please use 'keymaps.extra' instead
-    -- [cinnamon.nvim] The 'extended_keymaps' option has been deprecated. Please use 'keymaps.extra' instead
-    -- [cinnamon.nvim] The 'override_keymaps' option has been removed
-    -- [cinnamon.nvim] The 'always_scroll' option has been deprecated. Please use 'options.mode' instead
-    -- [cinnamon.nvim] The 'centered' option has been deprecated. Append 'zz' to your command to replicate
-    -- [cinnamon.nvim] The 'default_delay' option has been deprecated. Please use 'options.delay' instead
-    -- [cinnamon.nvim] The 'hide_cursor' option has been removed. The cursor is hidden when using 'options.mode = "window"
-    -- [cinnamon.nvim] The 'horizontal_scroll' option has been removed. Horizontal scrolling is always enabled
-
-    'declancm/cinnamon.nvim',
-    config = function()
-      local cinnamon = require('cinnamon').setup {
-        keymaps = {
-          basic = true,
-          extra = true
-        },
-        options = {
-          mode = 'cursor',
-          delay = 5,
-          max_delta = {
-            time = 400,
-          }
-        }
-      }
-
-      -- center screen on cursor 
-      vim.keymap.set("n", "G", function() require('cinnamon').scroll("Gzz") end)
-    end
+    "folke/snacks.nvim",
+    priority = 1000,
+    lazy = false,
+    ---@type snacks.Config
+    opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+      bigfile = { enabled = false },
+      dashboard = { enabled = false },
+      explorer = { enabled = false },
+      indent = { enabled = false },
+      input = { enabled = false },
+      picker = { enabled = false },
+      notifier = { enabled = false },
+      quickfile = { enabled = false },
+      scope = { enabled = false },
+      scroll = { enabled = false },
+      statuscolumn = { enabled = false },
+      words = { enabled = true },
+    },
   },
+
+  -- Smooth scrolling
+  -- {
+  --   'declancm/cinnamon.nvim',
+  --   config = function()
+  --     local cinnamon = require('cinnamon').setup {
+  --       keymaps = {
+  --         basic = true,
+  --         extra = true
+  --       },
+  --       options = {
+  --         mode = 'cursor',
+  --         delay = 5,
+  --         max_delta = {
+  --           time = 400,
+  --         }
+  --       }
+  --     }
+  --
+  --     -- center screen on cursor
+  --     vim.keymap.set("n", "G", function() require('cinnamon').scroll("Gzz") end)
+  --   end
+  -- },
 
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
@@ -484,6 +607,8 @@ require('lazy').setup({
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
       },
+      signcolumn = false,
+      numhl = true,
       on_attach = function(bufnr)
         vim.keymap.set('n', '<leader>gh', require('gitsigns').preview_hunk, { buffer = bufnr, desc = 'Preview git hunk' })
 
@@ -536,13 +661,13 @@ require('lazy').setup({
     -- See `:help lualine.txt`
     opts = {
       options = {
-        icons_enabled = false,
+        icons_enabled = true,
         theme = 'onedark',
         component_separators = '|',
         section_separators = '',
       },
       sections = {
-        lualine_x = { '%3{codeium#GetStatusString()}', 'filetype' },
+        lualine_x = { '%3{codeium#GetStatusString()}' },
         lualine_y = { getErrorCount, 'filetype' },
       }
     }
@@ -756,9 +881,10 @@ vim.o.scrolloff = 5
 vim.o.sidescrolloff = 10
 vim.o.cursorline = true
 
-vim.o.shiftwidth = 2
-vim.o.softtabstop = 2
-vim.o.tabstop = 2
+vim.o.shiftwidth = 4
+vim.o.expandtab = true
+vim.o.softtabstop = 4
+vim.o.tabstop = 4
 vim.o.autoindent = true
 vim.o.autoread = true
 
@@ -789,7 +915,7 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 
 -- Keep signcolumn on by default
-vim.wo.signcolumn = 'yes'
+vim.wo.signcolumn = 'auto'
 
 -- Decrease update time
 vim.o.updatetime = 200
@@ -802,13 +928,14 @@ vim.o.completeopt = 'menuone,noselect'
 vim.o.termguicolors = true
 
 -- [[ Basic Keymaps ]]
-vim.keymap.set('n', '<leader>h', ':Alpha<CR>')
+vim.keymap.set('n', '<leader>n', ':Alpha<CR>')
 vim.keymap.set({ 'n', 'v' }, '<F8>', '@:')
 -- vim.cmd([[set clipboard+=unnamedplus]])
 -- vim.keymap.set('v', '<leader>y', '"*y')         -- Copy
 -- vim.keymap.set('n', '<leader>p', '"*P')         -- Paste normal mode
 -- Neovide cliboard
 vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]], { desc = "Copy to system clipboard" })
+
 
 -- asynctasks
 vim.g.asynctasks_term_rows = 40 -- set height for the horizontal terminal split
@@ -819,6 +946,10 @@ let g:asyncrun_open = 6
 vim.keymap.set('n', '<F5>', ':AsyncTask file-build-and-run<CR>')
 vim.keymap.set('n', '<F6>', ':AsyncTask file-run<CR>')
 vim.keymap.set('n', '<F4>', ':AsyncTask')
+
+-- Jump words
+vim.keymap.set({'n', 'i'}, '<C-k>', function() Snacks.words.jump(-1, false) end)
+vim.keymap.set({'n', 'i'}, '<C-j>', function() Snacks.words.jump(1, false) end)
 
 -- camelCaseMotion
 vim.cmd([[
@@ -851,10 +982,11 @@ vim.keymap.set({ 't', 'n' }, '<Esc>', '<C-\\><C-n>')
 
 -- Telescope + LSP
 vim.keymap.set('n', '<leader>ld', ':Telescope lsp_definitions<CR>', { desc = 'Go to definition' })
-vim.keymap.set('n', '<leader>lr', ':Telescope lsp_references<CR>', { desc = 'Go to reference' })
+vim.keymap.set('n', '<leader>lu', ':Telescope lsp_references<CR>', { desc = 'Go to reference' })
+vim.keymap.set('n', '<leader>lr', function() vim.lsp.buf.rename() end, { desc = 'Rename symbol' })
 vim.keymap.set('n', '<leader>ls', ':Telescope lsp_document_symbols<CR>', { desc = 'View document symbols' })
 vim.keymap.set('n', '<leader>li', ':Telescope lsp_implementations<CR>', { desc = 'Go to implementation' })
-vim.keymap.set({ 'n', 'i' }, '<C-j>', function() vim.lsp.buf.hover() end)
+vim.keymap.set({ 'n', 'i' }, 'K', function() vim.lsp.buf.hover() end)
 vim.keymap.set({ 'n', 'i' }, '<C-f>', function() vim.lsp.buf.format() end)
 
 -- Telescope open git repos
@@ -1132,8 +1264,8 @@ local on_attach = function(_, bufnr)
   nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
   -- See `:help K` for why this keymap
-  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  -- nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+  -- nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
@@ -1169,10 +1301,10 @@ end
 -- New method
 -- document existing key chains
 require('which-key').add {
-  { '<leader>c',  name = '[C]ode' },
+  { '<leader>c', name = '[C]ode' },
   { '<leader>d', name = '[D]ocument' },
   { '<leader>g', name = '[G]it' },
-  { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+  { '<leader>h', group = 'Git [H]unk',     mode = { 'n', 'v' } },
   { '<leader>r', name = '[R]ename' },
   { '<leader>s', name = '[S]earch' },
   { '<leader>t', name = '[T]oggle' },
@@ -1180,7 +1312,7 @@ require('which-key').add {
 
   -- register which-key VISUAL mode
   -- required for visual <leader>hs (hunk stage) to work
-  { '<leader>', name = 'VISUAL <leader>', mode = { 'v' } },
+  { '<leader>',  name = 'VISUAL <leader>', mode = { 'v' } },
 }
 
 -- mason-lspconfig requires that these setup functions are called in this order
@@ -1270,8 +1402,6 @@ cmp.setup {
     end,
   },
   mapping = cmp.mapping.preset.insert {
-    ['<C-n>'] = cmp.mapping.select_next_item(),
-    ['<C-p>'] = cmp.mapping.select_prev_item(),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-u>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete {},
@@ -1280,6 +1410,25 @@ cmp.setup {
     --   behavior = cmp.ConfirmBehavior.Replace,
     --   select = true,
     -- },
+
+    -- ['<C-j>'] = cmp.mapping(function(fallback)
+    --   if cmp.visible() then
+    --     for i = 1, 3, 1 do
+    --       cmp.select_next_item()
+    --     end
+    --   else
+    --     fallback()
+    --   end
+    -- end, { 'i', 's' }),
+    -- ['<C-k>'] = cmp.mapping(function(fallback)
+    --   if cmp.visible() then
+    --     for i = 1, 3, 1 do
+    --       cmp.select_prev_item()
+    --     end
+    --   else
+    --     fallback()
+    --   end
+    -- end, { 'i', 's' }),
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
